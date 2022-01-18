@@ -10,7 +10,8 @@ const puppeteer = require("puppeteer");
   const page = await browser.newPage();
   while (true) {
     await page.goto(`https://www.vaidam.com/hospitals/emsey-hospital-pendik`, {
-      waitUntil: "networkidle0",
+      waitUntil: "networkidle2",
+      timeout: 0,
     });
     page.on("console", (message) =>
       console.log(`${message.type().toUpperCase()} ${message.text()}`)
@@ -19,11 +20,14 @@ const puppeteer = require("puppeteer");
       const name = document.querySelector(
         "h1.hospital-detail-main-heading"
       ).innerText;
-      const metaData = document.querySelectorAll("span.joint-list")?.innerText;
+      let metaData = document.querySelectorAll(".joint-list span");
       //   console.log(document.querySelectorAll("span.joint-list")?.innerText);
       //   const city = metaData[1];
-      const establishedIn = metaData[0];
-      const numberOfBeds = metaData[1];
+      metaData = [...metaData].map((ele) => {
+        return ele.innerHTML;
+      });
+      const establishedIn = parseInt(metaData[0], 10);
+      const numberOfBeds = parseInt(metaData[1], 10);
       // TODO (Should be array or should add 'line break' \n after every line)
       const about = document
         .querySelector("div.about-hospital ")
