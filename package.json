@@ -1,0 +1,16 @@
+{
+    "name": "vaidam-poc",
+    "version": "1.0.0",
+    "description": "",
+    "main": "listingUrls.js",
+    "scripts": {
+        "dev": "nodemon -w listingUrls.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "nodemon": "^2.0.15",
+        "puppeteer": "^13.1.0"
+    }
+}
