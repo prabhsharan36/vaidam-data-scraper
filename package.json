@@ -1,16 +1,16 @@
 {
-  "name": "vaidam-poc",
-  "version": "1.0.0",
-  "description": "",
-  "main": "page.js",
-  "scripts": {
-    "dev": "nodemon -w page.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "nodemon": "^2.0.15",
-    "puppeteer": "^13.0.1"
-  }
+    "name": "vaidam-scraper",
+    "version": "1.0.0",
+    "description": "Data Scraper for www.vaidam.com",
+    "main": "treatments.js",
+    "scripts": {
+        "dev": "nodemon -w treatments.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "Prabhsharan Singh & Ankur Bansal",
+    "license": "ISC",
+    "dependencies": {
+        "nodemon": "^2.0.15",
+        "puppeteer": "^13.1.0"
+    }
 }
