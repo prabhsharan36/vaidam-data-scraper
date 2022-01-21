@@ -2,9 +2,9 @@
     "name": "vaidam-poc",
     "version": "1.0.0",
     "description": "",
-    "main": "listingUrls.js",
+    "main": "treatments.js",
     "scripts": {
-        "dev": "nodemon -w listingUrls.js",
+        "dev": "nodemon -w treatments.js",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "author": "",
