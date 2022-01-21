@@ -2,14 +2,15 @@
     "name": "vaidam-scraper",
     "version": "1.0.0",
     "description": "Data Scraper for www.vaidam.com",
-    "main": "treatments.js",
+    "main": "department.js",
     "scripts": {
-        "dev": "nodemon -w treatments.js",
+        "dev": "nodemon -w department.js",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "author": "Prabhsharan Singh & Ankur Bansal",
     "license": "ISC",
     "dependencies": {
+        "mongodb": "^4.3.1",
         "nodemon": "^2.0.15",
         "puppeteer": "^13.1.0"
     }

@@ -1,8 +1,8 @@
 const puppeteer = require("puppeteer");
-const { hospitalScraper } = require("./hospitalPages.js");
+const hospitalDataScraper = require("./hospitalDataScraper.js");
 
-(async() => {
-    console.log("Listing urls scraping STARTED: ");
+async function fetchHospitalUrls(listingPageUrl) {
+    console.log("Started: hospitalsUrlsScraper");
     const browser = await puppeteer.launch({
         headless: false,
         args: ["--no-sandbox"],
@@ -13,7 +13,7 @@ const { hospitalScraper } = require("./hospitalPages.js");
     let pageNumber = 1;
     while (true) {
         await page.goto(
-            `https://www.vaidam.com/hospitals/turkey?page=${pageNumber}`, {
+            `${listingPageUrl}?page=${pageNumber}`, {
                 waitUntil: "networkidle2",
                 timeout: 0,
             }
@@ -30,12 +30,14 @@ const { hospitalScraper } = require("./hospitalPages.js");
     hospitalUrls = hospitalUrls.slice(0, 1)
     for (let index = 0; index < hospitalUrls.length; index++) {
         const url = hospitalUrls[index];
-        const ran = await hospitalScraper(url)
-        result.push(ran)
+        const data = await hospitalDataScraper(url)
+        result.push(data)
     }
-    console.log('RESULT', result);
+    console.log('Result: ', result);
     // console.log("HospitalURLs", hospitalUrls);
     // console.log("Total hospitalUrls: ", hospitalUrls.length);
     await browser.close();
-    console.log("Finished");
-})();
+    console.log("Task Finished!!! (hospitalUrlsScraper.js)");
+}
+
+module.exports = fetchHospitalUrls
