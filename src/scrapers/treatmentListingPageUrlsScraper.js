@@ -1,6 +1,6 @@
 const puppeteer = require("puppeteer");
-const fetchDepartmentLinks = require("./departmentListingPageUrls")
-async function treatmentListingPageUrls(baseCountryListingUrl = 'https://www.vaidam.com/hospitals/turkey') {
+const fetchDepartmentLinks = require("./departmentListingPageUrlsScraper")
+async function treatmentListingPageUrls(baseCountryListingUrl = 'https://www.vaidam.com/doctors/turkey') {
     console.log("Started: treatmentListingPageUrls");
     const browser = await puppeteer.launch({
         headless: false,
