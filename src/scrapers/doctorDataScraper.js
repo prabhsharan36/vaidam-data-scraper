@@ -26,6 +26,7 @@ async function doctorDataScraper(doctorUrl) {
       if (index === -1) index = doctorNameArr?.indexOf("Prof"); // vaidam sometimes miss "."
       doctorNameArr = doctorNameArr?.slice(index + 1);
       let firstName = doctorNameArr?.[0];
+      if (firstName) firstName = firstName.replace("Dr.", "");
       let middleName =
         doctorNameArr?.[1] && doctorNameArr?.[2] ? doctorNameArr?.[1] : null;
       let lastName = middleName ? doctorNameArr?.[2] : doctorNameArr?.[1];
