@@ -26,6 +26,11 @@ async function hospitalDataScraper(hospitalUrl) {
             });
             const establishedIn = parseInt(metaData[0], 10);
             const numberOfBeds = document.querySelector(".joint-list li:last-child")?.innerText;
+            
+             const payment_Methods =[];
+          payment_Methods[0] = document.querySelector("#section-facilities ul:last-child li:nth-child(5)")?.innerText;
+          payment_Methods[1] = document.querySelector("#section-facilities ul:last-child li:nth-child(6)")?.innerText;
+            
             //const numberOfBeds = parseInt(metaData[1], 10);
             // TODO (Should be array or should add 'line break' \n after every line)
             // const about = document
@@ -54,6 +59,7 @@ async function hospitalDataScraper(hospitalUrl) {
                 name,
                 numberOfBeds,
                 establishedIn,
+                payment_Methods,
                 city_name,
                 about,
                 address,
