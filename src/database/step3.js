@@ -1,36 +1,48 @@
-/* Saving Hospitals Urls */
+/* Scraping Hospital's Data and adding Doctor's url in DB */
 
-const listingPageUrlsScraper = require("../scrapers/hospitalListingPageUrlsScraper");
+const hospitalDataScraper = require("../scrapers/hospitalDataScraper");
+const doctorListingPageUrlsScraper = require("../scrapers/doctorListingPageUrlsScraper");
 const MongoClient = require("mongodb").MongoClient;
 const Url = "mongodb://localhost:27017/Scraper";
 
 MongoClient.connect(Url, async (err, client) => {
   console.log("✅ Database Connected");
   const db = client.db("vaidam-data");
-  const hospitalListingUrlColl = db.collection("hospitalListingUrls");
-  let urlsArr = [];
-  let cursor = hospitalListingUrlColl.find({});
+  const hospitalPageUrlColl = db.collection("hospitalPageUrls");
+  let data = [];
+  let cursor = hospitalPageUrlColl.find({});
   await cursor.forEach((doc) => {
-    urlsArr.push(...doc.links);
+    data.push({ ...doc });
   });
-  for (let index = 0; index < urlsArr.length; index++) {
-    const obj = urlsArr[index];
-    const departments = [obj.department];
-    const treatments = [obj.treatment];
-    const treatmentListingUrl = obj.treatmentListingUrl;
-    const hospitalUrls = await listingPageUrlsScraper(treatmentListingUrl);
-    const collection = db.collection("hospitalPageUrls");
-    for (let index = 0; index < hospitalUrls.length; index++) {
-      const url = hospitalUrls[index];
-      collection
-        .insertOne({
-          url,
-          departments,
-          treatments,
-        })
-        .then(() => {
-          console.log("New Hospital added successfully in Database!!!!");
-        });
+  for (let index = 0; index < data.length; index++) {
+    const hospitalUrl = data[index]?.url;
+    const collection = db.collection("hospitalData");
+    const hospital = await collection.findOne({ url: hospitalUrl });
+    if (hospital) console.log("Hospital Already Present!");
+    else {
+      let scrapedData = await hospitalDataScraper(hospitalUrl);
+      const doctorUrls = await doctorListingPageUrlsScraper(
+        scrapedData?.doctorsPageLink
+      );
+      const docCollection = db.collection("doctorPageUrls");
+      for (let index = 0; index < doctorUrls.length; index++) {
+        const url = doctorUrls[index];
+        const doctorUrl = await docCollection.findOne({ url });
+        if (doctorUrl) console.log("Doctor Url already present.");
+        else {
+          docCollection
+            .insertOne({
+              url,
+            })
+            .then(() => {
+              console.log("New Doctor Url added successfully in Database!!!!");
+            });
+        }
+      }
+      scrapedData.doctors = doctorUrls;
+      await collection.insertOne(scrapedData).then(() => {
+        console.log("New Hospital added successfully in Database!!!!");
+      });
     }
   }
   if (err) console.log("ERR in database connection: ", err);

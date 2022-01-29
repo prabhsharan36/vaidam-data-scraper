@@ -1,9 +1,9 @@
 const puppeteer = require("puppeteer");
 
 async function fetchurls(
-  listingPageUrl = "https://www.vaidam.com/hospitals/cardiology-and-cardiac-surgery/av-canal-repair/turkey"
+  listingPageUrl = "https://www.vaidam.com/doctors/country/TR/hospital/11402"
 ) {
-  console.log("Started: listingPageUrlsScraper");
+  console.log("Started: listingPageUrlsScraper => ", listingPageUrl);
   const browser = await puppeteer.launch({
     headless: false,
     args: ["--no-sandbox"],
@@ -15,26 +15,17 @@ async function fetchurls(
     // );
     let urls = [];
     let pageNumber = 1;
-    await page.goto(`${listingPageUrl}?page=${pageNumber}`, {
+    await page.goto(listingPageUrl, {
       waitUntil: "networkidle2",
       timeout: 0,
     });
-    // let data = await page.evaluate(async () => {
-    //   let department = document.querySelector(
-    //     "ul#Search-By-Department"
-    //   ).innerText;
-    //   department = department.replace(/([(1-9)])/g, "");
-    //   let treatment = document.querySelector(
-    //     "ul#Search-By-Treatment"
-    //   ).innerText;
-    //   treatment = treatment.replace(/([(1-9)])/g, "");
-    //   return { department, treatment };
-    // });
+    const redirectedUrl = page?._target?.url(); // Vaidam redirect the link to another link
     while (true) {
-      await page.goto(`${listingPageUrl}?page=${pageNumber}`, {
+      await page.goto(`${redirectedUrl}?page=${pageNumber}`, {
         waitUntil: "networkidle2",
         timeout: 0,
       });
+      console.log("Going on page => ", pageNumber);
       let result = await page.evaluate(async () => {
         const anchors = document.querySelectorAll(".primary-heading-sm a"); // doctor
         return Array.from(anchors).map((a) => a.href);
@@ -45,10 +36,7 @@ async function fetchurls(
         pageNumber += 1;
       } else break;
     }
-    // console.log('Result(listingPageUrlsScraper): ', result);
-    // console.log('URL(listingPageUrlsScraper): ', urls);
     console.log("Task Finished!!! (listingPageUrlsScraper.js)");
-    console.log(urls);
     return urls;
   } catch (err) {
     console.log(err);

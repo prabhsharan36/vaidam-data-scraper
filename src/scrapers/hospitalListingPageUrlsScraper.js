@@ -16,10 +16,6 @@ async function fetchurls(
     console.log("Scraping urls from => ", listingPageUrl);
     let urls = [];
     let pageNumber = 1;
-    await page.goto(`${listingPageUrl}?page=${pageNumber}`, {
-      waitUntil: "networkidle2",
-      timeout: 0,
-    });
     // let data = await page.evaluate(async () => {
     //   let department = document.querySelector(
     //     "ul#Search-By-Department"
@@ -36,6 +32,7 @@ async function fetchurls(
         waitUntil: "networkidle2",
         timeout: 0,
       });
+      console.log("Going on Page => ", pageNumber);
       let result = await page.evaluate(async () => {
         const anchors = document.querySelectorAll(".primary-heading-md a"); //hospital
         return Array.from(anchors).map((a) => a.href);
