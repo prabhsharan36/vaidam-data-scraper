@@ -13,7 +13,6 @@ async function fetchurls(
     // page.on("console", (message) =>
     //   console.log(`${message.type().toUpperCase()} ${message.text()}`)
     // );
-    console.log("Scraping urls from => ", listingPageUrl);
     let urls = [];
     let pageNumber = 1;
     await page.goto(`${listingPageUrl}?page=${pageNumber}`, {
@@ -37,7 +36,7 @@ async function fetchurls(
         timeout: 0,
       });
       let result = await page.evaluate(async () => {
-        const anchors = document.querySelectorAll(".primary-heading-md a"); //hospital
+        const anchors = document.querySelectorAll(".primary-heading-sm a"); // doctor
         return Array.from(anchors).map((a) => a.href);
       });
 
@@ -46,7 +45,10 @@ async function fetchurls(
         pageNumber += 1;
       } else break;
     }
+    // console.log('Result(listingPageUrlsScraper): ', result);
+    // console.log('URL(listingPageUrlsScraper): ', urls);
     console.log("Task Finished!!! (listingPageUrlsScraper.js)");
+    console.log(urls);
     return urls;
   } catch (err) {
     console.log(err);
@@ -54,4 +56,5 @@ async function fetchurls(
     await browser.close();
   }
 }
+fetchurls()
 module.exports = fetchurls;

@@ -18,24 +18,24 @@ async function doctorDataScraper(doctorUrl) {
     //   console.log(`${message.type().toUpperCase()} ${message.text()}`)
     // );
     const DoctorData = await page.evaluate(() => {
-      let doctorName = document.querySelector("h1.doc-name")?.innerText;
-      let doctorNameArr = doctorName?.split(" ");
-      let index = doctorNameArr?.indexOf("Dr.");
-      if (index === -1) index = doctorNameArr?.indexOf("Dr");
-      if (index === -1) index = doctorNameArr?.indexOf("Prof.");
-      if (index === -1) index = doctorNameArr?.indexOf("Prof"); // vaidam sometimes miss "."
-      doctorNameArr = doctorNameArr?.slice(index + 1);
-      let firstName = doctorNameArr?.[0];
-      if (firstName) firstName = firstName.replace("Dr.", "");
-      let middleName =
-        doctorNameArr?.[1] && doctorNameArr?.[2] ? doctorNameArr?.[1] : null;
-      let lastName = middleName ? doctorNameArr?.[2] : doctorNameArr?.[1];
-      let city = document.querySelector("p.doc-location")?.innerText;
-      if (city) {
-        city = city?.split(",");
-        city = city?.length > 0 ? city[0] : null;
+      let doctor_name = document.querySelector("h1.doc-name")?.innerText;
+      let doctor_nameArr = doctor_name?.split(" ");
+      let index = doctor_nameArr?.indexOf("Dr.");
+      if (index === -1) index = doctor_nameArr?.indexOf("Dr");
+      if (index === -1) index = doctor_nameArr?.indexOf("Prof.");
+      if (index === -1) index = doctor_nameArr?.indexOf("Prof"); // vaidam sometimes miss "."
+      doctor_nameArr = doctor_nameArr?.slice(index + 1);
+      let first_name = doctor_nameArr?.[0];
+      if (first_name) first_name = first_name.replace("Dr.", "");
+      let middle_name =
+        doctor_nameArr?.[1] && doctor_nameArr?.[2] ? doctor_nameArr?.[1] : null;
+      let last_name = middle_name ? doctor_nameArr?.[2] : doctor_nameArr?.[1];
+      let city_name = document.querySelector("p.doc-location")?.innerText;
+      if (city_name) {
+        city_name = city_name?.split(",");
+        city_name = city_name?.length > 0 ? city_name[0] : null;
       }
-      city = city === "" ? null : city;
+      city_name = city_name === "" ? null : city_name;
       let hospitalUrl = document.querySelector("#specialization h4 > a");
       hospitalUrl =
         hospitalUrl?.href === "https://www.vaidam.com/"
@@ -70,11 +70,11 @@ async function doctorDataScraper(doctorUrl) {
         };
       });
       return {
-        doctorName,
-        firstName,
-        middleName,
-        lastName,
-        city,
+        doctor_name,
+        first_name,
+        middle_name,
+        last_name,
+        city_name,
         education,
         experiences,
         services,
