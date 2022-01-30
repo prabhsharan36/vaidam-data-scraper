@@ -1,3 +1,4 @@
+const shell = require("shelljs");
 const puppeteer = require("puppeteer");
 
 async function fetchurls(
@@ -49,6 +50,7 @@ async function fetchurls(
     console.log(err);
   } finally {
     await browser.close();
+    shell.exec("taskkill /F /IM chrome.exe"); // force kill chrome or chromium
   }
 }
 module.exports = fetchurls;

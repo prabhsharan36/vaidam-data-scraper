@@ -1,4 +1,5 @@
 const puppeteer = require("puppeteer");
+const shell = require("shelljs");
 async function hospitalDataScraper(
   hospitalUrl = "https://www.vaidam.com/hospitals/hisar-hospital-intercontinental-istanbul"
 ) {
@@ -70,7 +71,7 @@ async function hospitalDataScraper(
         address,
         doctorsPageLink,
         doctors: [],
-        clinicspotsId: null
+        clinicspotsId: null,
       };
     });
     console.log("Task Finished!!! (hospitalDataScraper.js)");
@@ -79,6 +80,7 @@ async function hospitalDataScraper(
     console.log(err);
   } finally {
     await browser.close();
+    shell.exec("taskkill /F /IM chrome.exe"); // force kill chrome or chromium
   }
 }
 module.exports = hospitalDataScraper;

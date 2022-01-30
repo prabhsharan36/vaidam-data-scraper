@@ -1,4 +1,5 @@
 const puppeteer = require("puppeteer");
+const shell = require("shelljs");
 async function doctorDataScraper(doctorUrl) {
   try {
     console.log("Started: doctorScraper => ", doctorUrl);

@@ -1,4 +1,5 @@
 const puppeteer = require("puppeteer");
+const shell = require("shelljs");
 
 async function fetchurls(
   listingPageUrl = "https://www.vaidam.com/doctors/country/TR/hospital/11402"
@@ -42,7 +43,7 @@ async function fetchurls(
     console.log(err);
   } finally {
     await browser.close();
+    shell.exec("taskkill /F /IM chrome.exe"); // force kill chrome or chromium
   }
 }
-fetchurls()
 module.exports = fetchurls;
