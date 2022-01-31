@@ -10,6 +10,7 @@ MongoClient.connect(Url, async (err, client) => {
     console.log("✅ Database Connected");
     const db = client.db("vaidam-data");
     const hospitalListingUrlColl = db.collection("hospitalListingUrls");
+    db.createCollection("scrapedHospitalListingUrls");
     const scrapedHospitalListingUrlColl = db.collection(
       "scrapedHospitalListingUrls"
     );
