@@ -73,7 +73,7 @@ async function doctorDataScraper(doctorUrl) {
           organisation,
         };
       });
-      if (!city_name && hospitalUrl) {
+      if (!city_name && hospitalUrl) { //adding hospitas's cityname if doctor's city name not present
         const scrapedData = hospitalDataScraper(hospitalUrl);
         const cityName = scrapedData?.city_name;
         if (cityName) city_name = cityName;
