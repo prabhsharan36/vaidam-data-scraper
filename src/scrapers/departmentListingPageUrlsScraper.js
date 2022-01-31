@@ -1,5 +1,4 @@
 const puppeteer = require("puppeteer");
-const shell = require("shelljs");
 async function departmentsUrls(url) {
   console.log("Started: departmentListingPageUrls");
   const browser = await puppeteer.launch({
@@ -35,7 +34,7 @@ async function departmentsUrls(url) {
     console.log(err);
   } finally {
     await browser.close();
-    shell.exec("taskkill /F /IM chrome.exe"); // force kill chrome or chromium
+    // shell.exec("taskkill /F /IM chrome.exe"); // force kill chrome or chromium
   }
 }
 module.exports = departmentsUrls;
