@@ -95,5 +95,4 @@ async function hospitalDataScraper(
     shell.exec("taskkill /F /IM chrome.exe"); // force kill chrome or chromium
   }
 }
-hospitalDataScraper();
 module.exports = hospitalDataScraper;
