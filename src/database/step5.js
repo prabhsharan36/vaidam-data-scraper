@@ -9,17 +9,26 @@ MongoClient.connect(Url, async (err, client) => {
     console.log("✅ Database Connected");
     const db = client.db("vaidam-data");
     const DoctorDataColl = db.collection("doctorData");
-    let data = [];
+    db.createCollection("DoctorError");
+    const DoctorErrorColl = db.collection("DoctorError");
+    // let data = [];
     let cursor = DoctorDataColl.find({});
     while (await cursor.hasNext()) {
       let doctorData = await cursor.next();
-      console.log(doctorData);
       await axios
         .post(apiUrl, doctorData)
-        .then((response) => {
-          console.log(response);
+        .then(async (response) => {
+          await DoctorDataColl.updateOne(
+            { url: doctorData.url },
+            { $set: { clinicspotsId: response.id } }
+          );
+          console.log("SUCCESS => Doctor Saved Successfully in CLINICSPOTS");
         })
-        .catch((err) => {
+        .catch(async (err) => {
+          await DoctorErrorColl.insertOne({
+            doctorId: doctorData._id,
+            errorMessage: err?.response?.data?.message,
+          });
           console.log("ERROR => ", err.response.data.message);
         });
     }

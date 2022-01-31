@@ -1,6 +1,5 @@
 /* Saving Hospitals Urls */
 
-const { update } = require("lodash");
 const hospitalListingPageUrlsScraper = require("../scrapers/hospitalListingPageUrlsScraper");
 const MongoClient = require("mongodb").MongoClient;
 const Url = "mongodb://localhost:27017/Scraper";
