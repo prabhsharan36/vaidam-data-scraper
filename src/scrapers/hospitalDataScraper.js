@@ -23,21 +23,31 @@ async function hospitalDataScraper(
       metaData = [...metaData].map((ele) => {
         return ele.innerHTML;
       });
-      const establishedIn = parseInt(metaData[0], 10);
-      let numberOfBeds = document
+      const established_in = parseInt(metaData[0], 10);
+      let beds = document
         .querySelector(".joint-list li:last-child")
         ?.innerText?.trim()
         .split(" ");
-      numberOfBeds = numberOfBeds?.[0];
+      beds = beds?.[0];
 
-      const paymentMethods = [];
-      paymentMethods[0] = document
-        .querySelector("#section-facilities ul:last-child li:nth-child(5)")
-        ?.innerText?.trim();
-      paymentMethods[1] = document
-        .querySelector("#section-facilities ul:last-child li:nth-child(6)")
-        ?.innerText?.trim();
-
+      let facilities = document.querySelectorAll("div.text-body > ul > li");
+      facilities = [...facilities].map((item) => {
+        return item?.innerText;
+      });
+      let payment_methods = facilities;
+      // Payment methods in Clinicspots
+      const paymentMethodsArr = [
+        "Credit Card",
+        "Debit Card",
+        "Cash",
+        "Online Payment",
+        "Cheque",
+        "Insurance",
+        "Card",
+      ];
+      payment_methods = payment_methods.filter((item) =>
+        paymentMethodsArr.includes(item)
+      );
       let city_name = document
         .querySelector("span.secondary-heading-md")
         ?.innerText?.trim();
@@ -53,28 +63,30 @@ async function hospitalDataScraper(
       const nameArr = name?.split(",");
       /* remove city name if present otherwise return same name */
       name = nameArr[1]?.trim() === city_name ? nameArr[0]?.trim() : name;
-      let address = document
+      let address_line = document
         .querySelector("div#section-address")
         ?.innerText.split("\n")
         ?.splice(2)
         ?.filter((element) => {
           return element.length > 0;
         });
-      address = address?.[0] || address;
+      address_line = address_line?.[0] || address_line;
       const doctorsPageLink = document.querySelector("a.btn-show-more")?.href;
       return {
         name,
-        numberOfBeds,
-        establishedIn,
-        paymentMethods,
+        beds,
+        established_in,
+        payment_methods,
+        facilities,
         city_name,
-        address,
+        address_line,
         doctorsPageLink,
         doctors: [],
         clinicspotsId: null,
       };
     });
     console.log("Task Finished!!! (hospitalDataScraper.js)");
+    console.log(hospitalData);
     return hospitalData;
   } catch (err) {
     console.log(err);
@@ -83,4 +95,5 @@ async function hospitalDataScraper(
     shell.exec("taskkill /F /IM chrome.exe"); // force kill chrome or chromium
   }
 }
+hospitalDataScraper();
 module.exports = hospitalDataScraper;

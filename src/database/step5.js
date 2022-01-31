@@ -10,7 +10,7 @@ MongoClient.connect(Url, async (err, client) => {
     const db = client.db("vaidam-data");
     const DoctorDataColl = db.collection("doctorData");
     db.createCollection("DoctorError");
-    const DoctorErrorColl = db.collection("DoctorError");
+    const DoctorErrorColl = db.collection("doctorError");
     // let data = [];
     let cursor = DoctorDataColl.find({});
     while (await cursor.hasNext()) {
