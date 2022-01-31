@@ -1,5 +1,6 @@
 const puppeteer = require("puppeteer");
 const shell = require("shelljs");
+const hospitalDataScraper = require("./hospitalDataScraper");
 async function doctorDataScraper(doctorUrl) {
   console.log("Started: doctorScraper => ", doctorUrl);
 
@@ -72,6 +73,11 @@ async function doctorDataScraper(doctorUrl) {
           organisation,
         };
       });
+      if (!city_name && hospitalUrl) {
+        const scrapedData = hospitalDataScraper(hospitalUrl);
+        const cityName = scrapedData?.cityName;
+        if (cityName) city_name = cityName;
+      }
       return {
         doctor_name,
         first_name,
