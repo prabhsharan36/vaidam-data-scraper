@@ -1,5 +1,4 @@
 const puppeteer = require("puppeteer");
-const shell = require("shelljs");
 const fetchDepartmentLinks = require("./departmentListingPageUrlsScraper");
 async function treatmentListingPageUrls(baseCountryListingUrl) {
   console.log("Started: treatmentListingPageUrls");
@@ -45,7 +44,6 @@ async function treatmentListingPageUrls(baseCountryListingUrl) {
     console.log(err);
   } finally {
     await browser.close();
-    shell.exec("taskkill /F /IM chrome.exe"); // force kill chrome or chromium
   }
 }
 module.exports = treatmentListingPageUrls;
