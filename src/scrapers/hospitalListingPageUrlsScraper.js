@@ -29,11 +29,11 @@ async function fetchurls(
     //   return { department, treatment };
     // });
     while (true) {
+      console.log("Going on Page => ", pageNumber);
       await page.goto(`${listingPageUrl}?page=${pageNumber}`, {
         waitUntil: "networkidle2",
         timeout: 0,
       });
-      console.log("Going on Page => ", pageNumber);
       let result = await page.evaluate(async () => {
         const anchors = document.querySelectorAll(".primary-heading-md a"); //hospital
         return Array.from(anchors).map((a) => a.href);
