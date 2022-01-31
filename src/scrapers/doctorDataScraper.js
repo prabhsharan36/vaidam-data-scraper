@@ -75,7 +75,7 @@ async function doctorDataScraper(doctorUrl) {
       });
       if (!city_name && hospitalUrl) {
         const scrapedData = hospitalDataScraper(hospitalUrl);
-        const cityName = scrapedData?.cityName;
+        const cityName = scrapedData?.city_name;
         if (cityName) city_name = cityName;
       }
       return {

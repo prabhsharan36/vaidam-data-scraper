@@ -38,21 +38,21 @@ async function hospitalDataScraper(
         .querySelector("#section-facilities ul:last-child li:nth-child(6)")
         ?.innerText?.trim();
 
-      let cityName = document
+      let city_name = document
         .querySelector("span.secondary-heading-md")
         ?.innerText?.trim();
-      if (cityName) {
-        cityName = cityName?.split(",");
-        cityName = cityName?.length > 0 ? cityName[0] : null;
+      if (city_name) {
+        city_name = city_name?.split(",");
+        city_name = city_name?.length > 0 ? city_name[0] : null;
       }
-      cityName = cityName === "" ? null : cityName;
+      city_name = city_name === "" ? null : city_name;
       let name = document
         .querySelector("h1.hospital-detail-main-heading")
         ?.innerText?.trim();
 
       const nameArr = name?.split(",");
       /* remove city name if present otherwise return same name */
-      name = nameArr[1]?.trim() === cityName ? nameArr[0]?.trim() : name;
+      name = nameArr[1]?.trim() === city_name ? nameArr[0]?.trim() : name;
       let address = document
         .querySelector("div#section-address")
         ?.innerText.split("\n")
@@ -67,7 +67,7 @@ async function hospitalDataScraper(
         numberOfBeds,
         establishedIn,
         paymentMethods,
-        cityName,
+        city_name,
         address,
         doctorsPageLink,
         doctors: [],
