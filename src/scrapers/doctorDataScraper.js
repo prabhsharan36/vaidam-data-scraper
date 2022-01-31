@@ -19,36 +19,38 @@ async function doctorDataScraper(doctorUrl) {
     //   console.log(`${message.type().toUpperCase()} ${message.text()}`)
     // );
     const DoctorData = await page.evaluate(() => {
-      let doctorName = document.querySelector("h1.doc-name")?.innerText;
-      let doctorNameArr = doctorName?.split(" ");
+      let doctor_name = document.querySelector("h1.doc-name")?.innerText;
+      let doctorNameArr = doctor_name?.split(" ");
       let index = doctorNameArr?.indexOf("Dr.");
       if (index === -1) index = doctorNameArr?.indexOf("Dr");
       if (index === -1) index = doctorNameArr?.indexOf("Prof.");
       if (index === -1) index = doctorNameArr?.indexOf("Prof"); // vaidam sometimes miss "."
       doctorNameArr = doctorNameArr?.slice(index + 1);
-      let firstName = doctorNameArr?.[0];
-      if (firstName) firstName = firstName.replace("Dr.", "");
-      let middleName =
+      let first_name = doctorNameArr?.[0];
+      if (first_name) first_name = first_name.replace("Dr.", "");
+      let middle_name =
         doctorNameArr?.[1] && doctorNameArr?.[2] ? doctorNameArr?.[1] : null;
-      let lastName = middleName ? doctorNameArr?.[2] : doctorNameArr?.[1];
-      let cityName = document.querySelector("p.doc-location")?.innerText;
-      if (cityName) {
-        cityName = cityName?.split(",");
-        cityName = cityName?.length > 0 ? cityName[0] : null;
+      let last_name = middle_name ? doctorNameArr?.[2] : doctorNameArr?.[1];
+      let city_name = document.querySelector("p.doc-location")?.innerText;
+      if (city_name) {
+        city_name = city_name?.split(",");
+        city_name = city_name?.length > 0 ? city_name[0] : null;
       }
-      cityName = cityName === "" ? null : cityName;
+      city_name = city_name === "" ? null : city_name;
       // // let hospitalUrl = document.querySelector("#specialization h4 > a");
       // // hospitalUrl =
       // //   hospitalUrl?.href === "https://www.vaidam.com/"
       // //     ? null
       // //     : hospitalUrl?.href;
       // const services = [document.querySelector("#specialization p")?.innerText];
-      const specializations = [
-        document.querySelector(".doc-specialization h4")?.innerText,
-      ];
-      let education = document.querySelectorAll("div#education > ul > li");
-      education = [...education]?.map((item) => item?.innerText);
-      education = education?.map((string) => {
+      const specializations = [];
+      const specialization = document.querySelector(
+        ".doc-specialization h4"
+      )?.innerText;
+      if (specialization.length > 0) specializations.push(specialization);
+      let educations = document.querySelectorAll("div#education > ul > li");
+      educations = [...educations]?.map((item) => item?.innerText);
+      educations = educations?.map((string) => {
         let stringSplitted = string?.split(", ");
         return {
           // "course": stringSplitted[0],
@@ -71,15 +73,15 @@ async function doctorDataScraper(doctorUrl) {
         };
       });
       return {
-        doctorName,
-        firstName,
-        middleName,
-        lastName,
-        cityName,
-        education,
+        doctor_name,
+        first_name,
+        middle_name,
+        last_name,
+        city_name,
+        educations,
         experiences,
         specializations,
-        clinicspotsId: null
+        clinicspotsId: null,
         // hospitalUrl,
       };
     });
