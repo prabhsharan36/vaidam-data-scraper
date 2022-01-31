@@ -1,14 +1,14 @@
 const puppeteer = require("puppeteer");
 const shell = require("shelljs");
 async function doctorDataScraper(doctorUrl) {
+  console.log("Started: doctorScraper => ", doctorUrl);
+
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ["--no-sandbox"],
+  });
+
   try {
-    console.log("Started: doctorScraper => ", doctorUrl);
-
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox"],
-    });
-
     const page = await browser.newPage();
 
     await page.goto(doctorUrl, {
@@ -37,11 +37,11 @@ async function doctorDataScraper(doctorUrl) {
         city_name = city_name?.length > 0 ? city_name[0] : null;
       }
       city_name = city_name === "" ? null : city_name;
-      // // let hospitalUrl = document.querySelector("#specialization h4 > a");
-      // // hospitalUrl =
-      // //   hospitalUrl?.href === "https://www.vaidam.com/"
-      // //     ? null
-      // //     : hospitalUrl?.href;
+      let hospitalUrl = document.querySelector("#specialization h4 > a");
+      hospitalUrl =
+        hospitalUrl?.href === "https://www.vaidam.com/"
+          ? null
+          : hospitalUrl?.href;
       // const services = [document.querySelector("#specialization p")?.innerText];
       const specializations = [];
       const specialization = document.querySelector(
@@ -81,16 +81,18 @@ async function doctorDataScraper(doctorUrl) {
         educations,
         experiences,
         specializations,
+        hospitalUrl,
         clinicspotsId: null,
-        // hospitalUrl,
       };
     });
     // console.log(DoctorData);
-    await browser.close();
-    console.log("Finished(doctorDataScraper)");
+    console.log("Finished: doctorDataScraper");
     return DoctorData;
   } catch (err) {
     console.log(err);
+  } finally {
+    await browser.close();
+    shell.exec("taskkill /F /IM chrome.exe"); // force kill chrome or chromium
   }
 }
 module.exports = doctorDataScraper;
