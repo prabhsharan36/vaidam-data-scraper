@@ -11,8 +11,8 @@ MongoClient.connect(Url, async (err, client) => {
     let cursor = DoctorDataColl.find({});
     while (await cursor.hasNext()) {
       let doctorData = await cursor.next();
-      const docSpecializations = doctorData?.specializations;
-      if (docSpecializations?.length > 0)
+      const docSpecializations = doctorData?.services;
+      if (docSpecializations.length > 0)
         specializations.push(...docSpecializations); // first add all specializations and then remove duplicated items
     }
     specializations = specializations.filter(function (specialization, pos) {
