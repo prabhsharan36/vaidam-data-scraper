@@ -43,6 +43,7 @@ MongoClient.connect(Url, async (err, client) => {
           }
         }
         scrapedData.doctors = doctorUrls;
+        scrapedData.url = hospitalUrl;
         await collection.insertOne(scrapedData).then(() => {
           console.log("New Hospital added successfully in Database!!!!");
         });

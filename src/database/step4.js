@@ -32,7 +32,7 @@ MongoClient.connect(Url, async (err, client) => {
       }
     }
     if (err) console.log("ERR in database connection: ", err);
-    console.log("Finished: Step3");
+    console.log("Finished: Step4");
   } catch (err) {
     console.log(err);
   }
