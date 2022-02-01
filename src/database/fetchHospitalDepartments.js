@@ -18,7 +18,7 @@ MongoClient.connect(Url, async (err, client) => {
     departments = departments.filter(function (department, pos) {
       return departments.indexOf(department) == pos;
     });
-    console.log(departments);
+    console.log(departments, departments.length);
     if (err) console.log("ERR in database connection: ", err);
     console.log("Finished: fetchHospitalDepartments");
   } catch (err) {
