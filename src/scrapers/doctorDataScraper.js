@@ -1,7 +1,9 @@
 const puppeteer = require("puppeteer");
 const shell = require("shelljs");
 const hospitalDataScraper = require("./hospitalDataScraper");
-async function doctorDataScraper(doctorUrl) {
+async function doctorDataScraper(
+  doctorUrl = "https://www.vaidam.com/doctors/dr-ata-kirilmaz"
+) {
   console.log("Started: doctorScraper => ", doctorUrl);
 
   const browser = await puppeteer.launch({
@@ -16,9 +18,9 @@ async function doctorDataScraper(doctorUrl) {
       waitUntil: "networkidle2",
       timeout: 0,
     });
-    // page.on("console", (message) =>
-    //   console.log(`${message.type().toUpperCase()} ${message.text()}`)
-    // );
+    page.on("console", (message) =>
+      console.log(`${message.type().toUpperCase()} ${message.text()}`)
+    );
     const DoctorData = await page.evaluate(() => {
       let doctor_name = document.querySelector("h1.doc-name")?.innerText;
       let doctorNameArr = doctor_name?.split(" ");
@@ -43,12 +45,15 @@ async function doctorDataScraper(doctorUrl) {
         hospitalUrl?.href === "https://www.vaidam.com/"
           ? null
           : hospitalUrl?.href;
-      // const services = [document.querySelector("#specialization p")?.innerText];
       const specializations = [];
       const specialization = document.querySelector(
         ".doc-specialization h4"
       )?.innerText;
       if (specialization.length > 0) specializations.push(specialization);
+      let services = document.querySelectorAll("div.doc-specialization > a");
+      services = [...services].map((anchor) => {
+        return anchor?.innerText;
+      });
       let educations = document.querySelectorAll("div#education > ul > li");
       educations = [...educations]?.map((item) => item?.innerText);
       educations = educations?.map((string) => {
@@ -73,7 +78,8 @@ async function doctorDataScraper(doctorUrl) {
           organisation,
         };
       });
-      if (!city_name && hospitalUrl) { //adding hospitas's cityname if doctor's city name not present
+      if (!city_name && hospitalUrl) {
+        //adding hospitas's cityname if doctor's city name not present
         const scrapedData = hospitalDataScraper(hospitalUrl);
         const cityName = scrapedData?.city_name;
         if (cityName) city_name = cityName;
@@ -87,10 +93,12 @@ async function doctorDataScraper(doctorUrl) {
         educations,
         experiences,
         specializations,
+        services,
         hospitalUrl,
         clinicspotsId: null,
       };
     });
+    console.log(DoctorData);
     // console.log(DoctorData);
     console.log("Finished: doctorDataScraper");
     return DoctorData;
