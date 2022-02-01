@@ -49,7 +49,7 @@ async function doctorDataScraper(
       const specialization = document.querySelector(
         ".doc-specialization h4"
       )?.innerText;
-      if (specialization.length > 0) specializations.push(specialization);
+      if (specialization?.length > 0) specializations.push(specialization);
       let services = document.querySelectorAll("div.doc-specialization > a");
       services = [...services].map((anchor) => {
         return anchor?.innerText;
