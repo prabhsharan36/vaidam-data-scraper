@@ -45,7 +45,7 @@ async function doctorDataScraper(
         //     course = string;
         //   } else graduation_year = parseInt(string, 10);
         // });
-        if (course.length > college.length) {
+        if (course?.length > college?.length) {
           let temp = null;
           temp = college;
           college = course;
@@ -78,7 +78,7 @@ async function doctorDataScraper(
         return edu !== undefined;
       });
     DoctorData.educations =
-      DoctorData.educations.length > 0 ? DoctorData.educations : [];
+      DoctorData.educations?.length > 0 ? DoctorData.educations : [];
     DoctorData.start_year =
       typeof DoctorData.start_year === "number" ? DoctorData.start_year : null;
     console.log(DoctorData);
