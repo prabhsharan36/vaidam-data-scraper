@@ -16,7 +16,7 @@ MongoClient.connect(Url, async (err, client) => {
     });
     for (let index = 0; index < data.length; index++) {
       const doctorUrl = data[index]?.url;
-      if (!data[index]?.start_year) {
+      if (data[index]?.start_year === undefined) {
         const updateScrapedData = await doctorUpdatedDataScraper(doctorUrl);
         await doctoDataColl
           .updateOne(

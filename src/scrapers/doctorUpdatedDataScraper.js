@@ -23,9 +23,9 @@ async function doctorDataScraper(
     );
     const DoctorData = await page.evaluate(() => {
       let start_year = document.querySelector("p.doc-exp")?.innerText;
-      start_year = start_year.split(" ");
+      start_year = start_year?.split(" ");
       // console.log(start_year[0], start_year[1]);
-      start_year = isNaN(parseInt(start_year[0], 10))
+      start_year = isNaN(parseInt(start_year?.[0], 10))
         ? null
         : 2022 - parseInt(start_year[0], 10);
       let educations = document.querySelectorAll("div#education > ul > li");
