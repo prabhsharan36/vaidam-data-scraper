@@ -15,9 +15,9 @@ MongoClient.connect(Url, async (err, client) => {
     console.log("✅ Database Connected");
     db = client.db("vaidam-data");
     const DoctorDataColl = db.collection("doctorData");
-    const DoctorErrorColl = db.collection("doctorError");
     const HospitalDataColl = db.collection("hospitalData");
     db.createCollection("doctorError").catch(() => {}); // by catch we are removing error of "collection already exists" from console
+    const DoctorErrorColl = db.collection("doctorError");
     let cursor = DoctorDataColl.find({});
     while (await cursor.hasNext()) {
       let doctorData = await cursor.next();
@@ -115,13 +115,15 @@ async function mapSpecialization(doctorData) {
     doctorData.specializations = specializations;
     delete doctorData.services;
     await requestLimiter.schedule(() => {
-      sendRequest(db, doctorData);
+      sendRequest(doctorData);
     });
   });
 }
-async function sendRequest(db, payload) {
+async function sendRequest(payload) {
   const DoctorErrorColl = db.collection("doctorError");
   const DoctorDataColl = db.collection("doctorData");
+  console.log(payload);
+  process.exit(0)
   await axios
     .post(apiUrl, payload)
     .then(async (response) => {

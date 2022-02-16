@@ -1,153 +1,175 @@
-/* Save Hospitals to clinicspots */
-
-/* Save Doctors to Clinicspots */
+/* Save Hospitals to Clinicspots */
 
 const axios = require("axios");
 const MongoClient = require("mongodb").MongoClient;
 const Url = "mongodb://localhost:27017/Scraper";
-const apiUrl = "http://localhost:8080/api/add-doctor";
+const apiUrl = "http://localhost:8080/api/add-facility";
 const Bottleneck = require("bottleneck");
 const requestLimiter = new Bottleneck({
   maxConcurrent: 60,
   minTime: 1001,
 });
+let db = null;
 MongoClient.connect(Url, async (err, client) => {
   try {
     console.log("✅ Database Connected");
-    const db = client.db("vaidam-data");
-    const DoctorDataColl = db.collection("doctorData");
-    const DoctorErrorColl = db.collection("doctorError");
-    const SpecializationMappingColl = db.collection("specializationMappings");
+    db = client.db("vaidam-data");
     const HospitalDataColl = db.collection("hospitalData");
-    db.createCollection("doctorError").catch(() => {}); // by catch we are removing error of "collection already exists" from console
-    let cursor = DoctorDataColl.find({});
+    const CategoryMappingColl = db.collection("categoryMappings");
+    const HospitalPageUrls = db.collection("hospitalPageUrls");
+    db.createCollection("hospitalError").catch(() => {}); // by catch we are removing error of "collection already exists" from console
+    const HospitalErrorColl = db.collection("hospitalError");
+    let cursor = HospitalDataColl.find({});
     while (await cursor.hasNext()) {
-      let doctorData = await cursor.next();
-      if (!doctorData?.clinicspotsId) {
-        if (doctorData?.first_name) {
-          if (doctorData?.city_name) {
-            /*
-             * services are also specialization it was just we were not clear at time of scraping
-             * that it was service or specializations.
-             */
-            const services = doctorData?.services?.map(async (service) => {
-              const mappedService = await SpecializationMappingColl.findOne({
-                VaidamSpecialization: service,
+      let hospitalData = await cursor.next();
+      if (!hospitalData?.clinicspotsId) {
+        if (hospitalData?.name) {
+          if (hospitalData?.city_name) {
+            const result = await HospitalPageUrls.findOne({
+              url: hospitalData.url,
+            });
+            const departments = result.departments;
+            let categories = departments?.map(async (department) => {
+              if (department === "COSMETIC AND PLASTIC SURGERY0")
+                department = "COSMETIC AND PLASTIC SURGERY";
+              const mappedDepartment = await CategoryMappingColl.findOne({
+                VaidamDepartment: department,
               });
-              if (mappedService) {
-                return mappedService?.Specialization1;
+              if (mappedDepartment) {
+                return mappedDepartment?.Category1;
               }
               return;
             });
-            let specializations = doctorData?.specializations?.map(
-              async (specialization) => {
-                const mappedSpecialization =
-                  await SpecializationMappingColl.findOne({
-                    VaidamSpecialization: specialization,
-                  });
-                if (mappedSpecialization) {
-                  return mappedSpecialization?.Specialization1;
-                }
-                return;
-              }
-            );
-            specializations = [...specializations, ...services];
-            Promise.all(specializations).then(async (specializationArr) => {
-              let specializations = specializationArr.filter(
-                (specialization) => {
-                  return specialization !== undefined;
-                }
-              );
-              specializations = specializations || []; // null check
+            Promise.all(categories).then(async (categoryArr) => {
+              let categories = categoryArr.filter((category) => {
+                return category !== undefined && category !== "";
+              });
+              categories = categories || []; // null check
               // removing any duplicity
-              specializations = specializations.filter(function (
-                specialization,
-                pos
-              ) {
-                return specializations.indexOf(specialization) == pos;
+              categories = categories.filter(function (category, pos) {
+                return categories.indexOf(category) == pos;
               });
-              doctorData.specializations = specializations;
-              delete doctorData.services;
-              await requestLimiter.schedule(() => {
-                sendRequest(db, doctorData);
-              });
+              hospitalData.categories = categories;
+              await mapDoctors(hospitalData);
             });
-          } else if (doctorData?.hospitalUrl) {
-            const hospitalData = await HospitalDataColl.findOne({
-              url: doctorData.hospitalUrl,
-            });
-            const cityName = hospitalData?.city_name;
-            if (cityName) doctorData.city_name = cityName;
-            else {
-              await DoctorDataColl.updateOne(
-                { url: doctorData.url },
-                { $set: { clinicspotsId: "This doctor cannot be saved!" } }
-              );
-              await DoctorErrorColl.insertOne({
-                doctorId: doctorData._id,
-                errorMessage:
-                  "This Doctor's City and hospital's city not present",
-              });
-            }
           } else {
-            await DoctorDataColl.updateOne(
-              { url: doctorData.url },
-              { $set: { clinicspotsId: "This doctor cannot be saved!" } }
+            await HospitalDataColl.updateOne(
+              { url: hospitalData.url },
+              { $set: { clinicspotsId: "This hospital cannot be saved!" } }
             );
-            await DoctorErrorColl.insertOne({
-              doctorId: doctorData._id,
-              errorMessage:
-                "This Doctor's CITY_NAME and HOSPITAL URL not present",
+            await HospitalErrorColl.insertOne({
+              hospitalId: hospitalData._id,
+              errorMessage: "This Hospital's CITY_NAME not present",
             });
           }
         } else {
-          await DoctorDataColl.updateOne(
-            { url: doctorData.url },
-            { $set: { clinicspotsId: "This doctor cannot be saved!" } }
+          await HospitalDataColl.updateOne(
+            { url: hospitalData.url },
+            { $set: { clinicspotsId: "This hospital cannot be saved!" } }
           );
-          await DoctorErrorColl.insertOne({
-            doctorId: doctorData._id,
-            errorMessage:
-              "This Doctor's FIRST_NAME not present.",
+          await HospitalErrorColl.insertOne({
+            hospitalId: hospitalData._id,
+            errorMessage: "This Hospital's NAME not present.",
           });
         }
       }
     }
     if (err) console.log("ERR in database connection: ", err);
-    // console.log("Finished: Step5");
   } catch (err) {
     console.log(err);
     process.exit(0);
   }
 });
-
-async function sendRequest(db, payload) {
-  const DoctorErrorColl = db.collection("doctorError");
+async function mapDoctors(hospitalData) {
   const DoctorDataColl = db.collection("doctorData");
+  let doctors = hospitalData.doctors.map(async (doctorUrl) => {
+    let result = await DoctorDataColl.findOne({
+      url: doctorUrl,
+    });
+    if (result?.clinicspotsId) {
+      return result?.clinicspotsId;
+    }
+    return;
+  });
+  Promise.all(doctors).then(async (doctorsArr) => {
+    let doctors = doctorsArr.filter((doctorId) => {
+      return (
+        doctorId !== undefined &&
+        doctorId !== null &&
+        doctorId !== "This doctor cannot be saved!" &&
+        typeof doctorId === "number"
+      );
+    });
+    doctors = doctors || []; // null check
+    // removing any duplicity
+    doctors = doctors.filter(function (doctor, pos) {
+      return doctors.indexOf(doctor) == pos;
+    });
+    const mappedAmenities = {
+      "Free Wifi": "Internet/Wifi",
+      "Laundry": "Laundry Room",
+      "Religious facilities": "Prayer Room",
+      "Café": "Cafeteria",
+      "Parking available": "Parking",
+      "ATM": "Bank/ATM",
+      "Foreign currency exchange": "Money Exchange Service",
+      Pharmacy: "24X7 Pharmacy",
+    };
+    delete hospitalData.clinicspotsId;
+    if (isNaN(parseInt(hospitalData.beds, 10))) {
+      delete hospitalData.beds;
+    }
+    hospitalData.facilities = hospitalData.facilities
+      .map((amenity) => {
+        if (mappedAmenities[amenity]) {
+          return { name: mappedAmenities[amenity] };
+        }
+      })
+      .filter((amenity) => {
+        if(amenity)
+          return typeof amenity.name === "string";
+      });
+    hospitalData.amenities = hospitalData.facilities;
+    delete hospitalData.facilities;
+    hospitalData.doctors = doctors;
+    hospitalData.type = "Hospital";
+    hospitalData.country_id = 223; // Turkey ID
+    hospitalData.payment_methods = hospitalData?.payment_methods.map(
+      (payment_method) => {
+        return { method: payment_method };
+      }
+    );
+    await requestLimiter.schedule(() => {
+      sendRequest(hospitalData);
+    });
+  });
+}
+
+async function sendRequest(payload) {
+  const HospitalErrorColl = db.collection("hospitalError");
+  const HospitalDataColl = db.collection("hospitalData");
   await axios
     .post(apiUrl, payload)
     .then(async (response) => {
-      // console.log(response);
-      const doctorId = response?.data.id;
-      if (typeof doctorId === "number") {
-        await DoctorDataColl.updateOne(
+      const hospitalId = response.data.id;
+      if (typeof hospitalId === "number") {
+        await HospitalDataColl.updateOne(
           { url: payload.url },
-          { $set: { clinicspotsId: doctorId } }
+          { $set: { clinicspotsId: hospitalId } }
         );
         console.log(
-          "SUCCESS => Doctor Saved Successfully in CLINICSPOTS",
+          "SUCCESS => Hospital Saved Successfully in CLINICSPOTS",
           "ID => ",
-          doctorId
+          hospitalId
         );
       } else throw new Error("Id was not number");
     })
     .catch(async (err) => {
-      await DoctorErrorColl.insertOne({
-        doctorId: payload._id,
+      await HospitalErrorColl.insertOne({
+        hospitalId: payload._id,
         errorMessage: err?.response?.data?.message,
       });
       console.log("ERROR => ", err, err?.response?.data?.message);
-      console.log(payload);
-      process.exit(0);
+      // process.exit(0);
     });
 }
