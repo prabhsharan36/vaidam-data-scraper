@@ -122,8 +122,6 @@ async function mapSpecialization(doctorData) {
 async function sendRequest(payload) {
   const DoctorErrorColl = db.collection("doctorError");
   const DoctorDataColl = db.collection("doctorData");
-  console.log(payload);
-  process.exit(0)
   await axios
     .post(apiUrl, payload)
     .then(async (response) => {
@@ -147,7 +145,7 @@ async function sendRequest(payload) {
         errorMessage: err?.response?.data?.message,
       });
       console.log("ERROR => ", err, err?.response?.data?.message);
-      console.log(payload);
-      process.exit(0);
+      // console.log(payload);
+      // process.exit(0);
     });
 }
